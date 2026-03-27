@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Garden</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to top, #fdf6e3, #c3e0dc);
+      font-family: 'Georgia', serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      color: #36544f;
+      margin-top: 40px;
+    }
+
+    .garden {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      padding: 50px;
+    }
+
+    .flower {
+      width: 120px;
+      height: 120px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .flower:hover {
+      transform: scale(1.1);
+    }
+
+    .message {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 20px;
+      border: 2px solid #36544f;
+      border-radius: 10px;
+      max-height: 80vh;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      text-align: center;
+    }
+
+    .message img {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 10px;
+      animation: fadeIn 1s ease;
+    }
+
+    .message button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background-color: #36544f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 999;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <h1>🌸 Memory Garden 🌸</h1>
+  <div class="garden">
+    <div class="flower" style="background-image: url('images/WhatsApp Image 2025-06-05 at 21.24.43.jpeg');" onclick="showGallery('winter')"></div>
+    <div class="flower" style="background-image: url('images/WhatsApp Image 2025-06-05 at 21.25.05.jpeg');" onclick="showGallery('autumn')"></div>
+    <div class="flower" style="background-image: url('images/WhatsApp Image 2025-06-05 at 21.25.15.jpeg');" onclick="showGallery('spring')"></div>
+    <div class="flower" style="background-image: url('images/WhatsApp Image 2025-06-05 at 21.27.38.jpeg');" onclick="showGallery('funny')"></div>
+  </div>
+
+  <div class="overlay" onclick="hideMessage()"></div>
+  <div class="message" id="messageBox">
+    <p id="messageText"></p>
+    <img id="galleryImage" src="" alt="Memory Image">
+    <div>
+      <button onclick="prevImage()">⟨ Prev</button>
+      <button onclick="nextImage()">Next ⟩</button>
+    </div>
+    <button onclick="hideMessage()">Close</button>
+  </div>
+
+  <audio id="bgMusic" loop></audio>
+
+  <script>
+    const galleries = {
+      winter: {
+        images: [
+          'images/20210731_161128.jpg', 'images/20210731_161039.jpg', 'images/IMG-20210802-WA0021.jpg', 'images/IMG-20210810-WA0051.jpg', 'images/IMG-20210827-WA0021.jpg',
+        ],
+        music: 'audio/WhatsApp Audio 2025-05-30 at 22.39.48.mpeg',
+        message: "Winter brought stillness and reflection."
+      },
+      autumn: {
+        images: [
+          'images/IMG-20210404-WA0008.jpg', 'images/IMG-20210404-WA0015.jpg', 'images/IMG-20210416-WA0061.jpg', 'images/IMG-20210416-WA0063.jpg'
+        ],
+        music: 'audio/WhatsApp Audio 2025-05-30 at 22.40.52.mpeg',
+        message: "Golden leaves and golden memories."
+      },
+      spring: {
+        images: [
+          'images/IMG-20211016-WA0037.jpg', 'images/IMG-20211113-WA0010.jpg', 'images/IMG-20211113-WA0011.jpg', 'images/IMG-20211113-WA0012.jpg'
+        ],
+        music: 'audio/WhatsApp Audio 2025-05-30 at 22.39.51.mpeg',
+        message: "New beginnings and blooming laughter."
+      },
+      funny: {
+        images: ['images/IMG-20211107-WA0038.jpg'],
+        music: 'audio/WhatsApp Audio 2025-05-30 at 22.40.36.mpeg',
+        message: "One laugh can change everything! Ngiyahleka njalo mangibuka lesithombe."
+      }
+    };
+
+    let currentGallery = [];
+    let currentIndex = 0;
+
+    function showGallery(season) {
+      const gallery = galleries[season];
+      currentGallery = gallery.images;
+      currentIndex = 0;
+
+      document.getElementById('messageText').innerText = gallery.message;
+      document.getElementById('galleryImage').src = gallery.images[currentIndex];
+      document.getElementById('bgMusic').src = gallery.music;
+      document.getElementById('bgMusic').play();
+
+      document.querySelector('.overlay').style.display = 'block';
+      document.getElementById('messageBox').style.display = 'block';
+    }
+
+    function hideMessage() {
+      document.getElementById('messageBox').style.display = 'none';
+      document.querySelector('.overlay').style.display = 'none';
+      document.getElementById('bgMusic').pause();
+      document.getElementById('bgMusic').currentTime = 0;
+    }
+
+    function nextImage() {
+      if (currentIndex < currentGallery.length - 1) {
+        currentIndex++;
+        document.getElementById('galleryImage').src = currentGallery[currentIndex];
+      }
+    }
+
+    function prevImage() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        document.getElementById('galleryImage').src = currentGallery[currentIndex];
+      }
+    }
+  </script>
+</body>
+</html>
